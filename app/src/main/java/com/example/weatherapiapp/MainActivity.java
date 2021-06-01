@@ -4,22 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     Button btn_getCityID, btn_getWeatherByCityID, btn_getWeatherByCityName;
@@ -68,9 +60,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onResponse(WeatherReportModel weatherReportModel) {
-                        Toast.makeText(MainActivity.this, weatherReportModel.toString(), Toast.LENGTH_SHORT).show();
-
+                    public void onResponse(List<WeatherReportModel> weatherReportModel) {
+                        //Toast.makeText(MainActivity.this, weatherReportModel.toString(), Toast.LENGTH_SHORT).show();
+                        ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModel);
+                        lv_weatherReport.setAdapter(arrayAdapter);
                     }
                 });
 
@@ -80,10 +73,19 @@ public class MainActivity extends AppCompatActivity {
         btn_getWeatherByCityName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "You typed " + et_dateInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                weatherDataService.getTheWeatherByName(et_dateInput.getText().toString(), new WeatherDataService.GetWeatherByCityNameResponse() {
+                    @Override
+                    public void onError(String message) {
+                        Toast.makeText(MainActivity.this, "Not Found", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(List<WeatherReportModel> weatherReportModels) {
+                        ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModels);
+                        lv_weatherReport.setAdapter(arrayAdapter);
+                    }
+                });
             }
         });
-
-
     }
 }

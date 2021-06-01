@@ -21,6 +21,7 @@ public class WeatherDataService {
     public static final String QUERY_FOR_CITY_WEATHER_BY_ID = "https://www.metaweather.com/api/location/";
     String cityID;
     Context context;
+    String theCityID;
 
     public WeatherDataService(Context context) {
         this.context = context;
@@ -64,38 +65,44 @@ public class WeatherDataService {
     public interface ForeCastByIDResponse {
         void onError(String message);
 
-        void onResponse(WeatherReportModel weatherReportModel);
+        void onResponse(List<WeatherReportModel> weatherReportModels);
     }
 
     public void getWeatherByID(String cityID, final ForeCastByIDResponse foreCastByIDResponse) {
-        List<WeatherReportModel> report = new ArrayList<>();
+        final List<WeatherReportModel> report = new ArrayList<>();
         String url = QUERY_FOR_CITY_WEATHER_BY_ID + cityID;
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 //Toast.makeText(context, response.toString(), Toast.LENGTH_SHORT).show();
                 try {
                     JSONArray consolidated_weather_list = response.getJSONArray("consolidated_weather");
-                    WeatherReportModel first_day = new WeatherReportModel();
-                    JSONObject first_oject_from_api = consolidated_weather_list.getJSONObject(0);
-                    first_day.setId(first_oject_from_api.getInt("id"));
-                    first_day.setWeather_state_name(first_oject_from_api.getString("weather_state_name"));
-                    first_day.setWeather_state_abbr(first_oject_from_api.getString("weather_state_abbr"));
-                    first_day.setWind_direction_compass(first_oject_from_api.getString("wind_direction_compass"));
-                    first_day.setCreated(first_oject_from_api.getString("created"));
-                    first_day.setApplicable_date(first_oject_from_api.getString("applicable_date"));
-                    first_day.setMin_temp(first_oject_from_api.getLong("min_temp"));
-                    first_day.setMax_temp(first_oject_from_api.getLong("max_temp"));
-                    first_day.setThe_temp(first_oject_from_api.getLong("the_temp"));
-                    first_day.setWind_speed(first_oject_from_api.getLong("wind_speed"));
-                    first_day.setWind_direction(first_oject_from_api.getLong("wind_direction"));
-                    first_day.setAir_pressure(first_oject_from_api.getInt("air_pressure"));
-                    first_day.setHumidity(first_oject_from_api.getInt("humidity"));
-                    first_day.setVisibility(first_oject_from_api.getLong("visibility"));
-                    first_day.setPredictability(first_oject_from_api.getInt("predictability"));
 
-                    foreCastByIDResponse.onResponse(first_day);
+                    for(int i = 0; i < consolidated_weather_list.length(); i++) {
+                        WeatherReportModel one_day = new WeatherReportModel();
+
+                        JSONObject first_object_from_api = consolidated_weather_list.getJSONObject(i);
+                        one_day.setId(first_object_from_api.getInt("id"));
+                        one_day.setWeather_state_name(first_object_from_api.getString("weather_state_name"));
+                        one_day.setWeather_state_abbr(first_object_from_api.getString("weather_state_abbr"));
+                        one_day.setWind_direction_compass(first_object_from_api.getString("wind_direction_compass"));
+                        one_day.setCreated(first_object_from_api.getString("created"));
+                        one_day.setApplicable_date(first_object_from_api.getString("applicable_date"));
+                        one_day.setMin_temp(first_object_from_api.getLong("min_temp"));
+                        one_day.setMax_temp(first_object_from_api.getLong("max_temp"));
+                        one_day.setThe_temp(first_object_from_api.getLong("the_temp"));
+                        one_day.setWind_speed(first_object_from_api.getLong("wind_speed"));
+                        one_day.setWind_direction(first_object_from_api.getLong("wind_direction"));
+                        one_day.setAir_pressure(first_object_from_api.getInt("air_pressure"));
+                        one_day.setHumidity(first_object_from_api.getInt("humidity"));
+                        one_day.setVisibility(first_object_from_api.getLong("visibility"));
+                        one_day.setPredictability(first_object_from_api.getInt("predictability"));
+
+                        report.add(one_day);
+                    }
+
+                    foreCastByIDResponse.onResponse(report);
 
 
                 } catch (JSONException e) {
@@ -111,5 +118,40 @@ public class WeatherDataService {
             }
         });
         MySingleton.getInstance(context).addToRequestQueue(request);
+    }
+
+    public interface GetWeatherByCityNameResponse {
+        void onError(String message);
+        void onResponse (List<WeatherReportModel> weatherReportModels);
+    }
+
+    public void getTheWeatherByName (String cityName, final GetWeatherByCityNameResponse getWeatherByCityNameResponse) {
+        getCityID(cityName, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(context, "The city ID not found", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(String cityID) {
+                getWeatherByID(cityID, new ForeCastByIDResponse() {
+                    @Override
+                    public void onError(String message) {
+                        Toast.makeText(context, "The name is not found", Toast.LENGTH_SHORT).show();
+                        getWeatherByCityNameResponse.onError("The name is not found");
+                    }
+
+                    @Override
+                    public void onResponse(List<WeatherReportModel> weatherReportModels) {
+                        getWeatherByCityNameResponse.onResponse(weatherReportModels);
+
+
+                    }
+                });
+
+
+            }
+        });
+        //MySingleton.getInstance(context).addToRequestQueue(request);
     }
 }
