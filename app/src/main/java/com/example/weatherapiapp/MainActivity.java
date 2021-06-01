@@ -13,8 +13,13 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     Button btn_getCityID, btn_getWeatherByCityID, btn_getWeatherByCityName;
@@ -31,32 +36,24 @@ public class MainActivity extends AppCompatActivity {
         btn_getWeatherByCityName = findViewById(R.id.btn_getWeatherByCityName);
         et_dateInput = findViewById(R.id.et_dataInput);
         lv_weatherReport = findViewById(R.id.lv_weatherReports);
+        final WeatherDataService weatherDataService = new WeatherDataService(MainActivity.this);
 
         btn_getCityID.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // Instantiate the RequestQueue.
-                RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-                String url ="https://www.metaweather.com/api/location/search/?query=london";
-
-// Request a string response from the provided URL.
-                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                // Display the first 500 characters of the response string.
-                                Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
-                            }
-                        }, new Response.ErrorListener() {
+                weatherDataService.getCityID(et_dateInput.getText().toString(), new WeatherDataService.VolleyResponseListener() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Something is wrong!", Toast.LENGTH_SHORT).show();
+                    public void onError(String message) {
+                        Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(String cityID) {
+                        Toast.makeText(MainActivity.this, "Returned ID is " + cityID, Toast.LENGTH_SHORT).show();
+
                     }
                 });
 
-// Add the request to the RequestQueue.
-                queue.add(stringRequest);
 
             }
         });
