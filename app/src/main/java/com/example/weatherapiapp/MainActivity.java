@@ -1,6 +1,8 @@
 package com.example.weatherapiapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.View;
@@ -16,7 +18,21 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     Button btn_getCityID, btn_getWeatherByCityID, btn_getWeatherByCityName;
     EditText et_dateInput;
-    ListView lv_weatherReport;
+    private RecyclerView rv_list;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+    List<WeatherReportModel> finalWeatherReportModel;
+
+
+    public void executeAfterBtnPressed(RecyclerView rv, RecyclerView.LayoutManager lm, List<WeatherReportModel> wrm) {
+        rv.setHasFixedSize(true);
+        lm = new LinearLayoutManager(this);
+        rv.setLayoutManager(lm);
+
+        mAdapter = new MyAdapter(wrm, MainActivity.this);
+        rv.setAdapter(mAdapter);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +43,12 @@ public class MainActivity extends AppCompatActivity {
         btn_getWeatherByCityID = findViewById(R.id.btn_getWeatherByCityID);
         btn_getWeatherByCityName = findViewById(R.id.btn_getWeatherByCityName);
         et_dateInput = findViewById(R.id.et_dataInput);
-        lv_weatherReport = findViewById(R.id.lv_weatherReports);
+        rv_list = findViewById(R.id.rv_weatherList);
+
+
         final WeatherDataService weatherDataService = new WeatherDataService(MainActivity.this);
+
+
 
         btn_getCityID.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,8 +82,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(List<WeatherReportModel> weatherReportModel) {
                         //Toast.makeText(MainActivity.this, weatherReportModel.toString(), Toast.LENGTH_SHORT).show();
-                        ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModel);
-                        lv_weatherReport.setAdapter(arrayAdapter);
+                        //ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModel);
+                        System.out.println(android.R.layout.simple_expandable_list_item_1 + " ---------------");
+                        executeAfterBtnPressed(rv_list, layoutManager, weatherReportModel);
                     }
                 });
 
@@ -81,11 +102,13 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(List<WeatherReportModel> weatherReportModels) {
-                        ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModels);
-                        lv_weatherReport.setAdapter(arrayAdapter);
+                        //ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModels);
+                        executeAfterBtnPressed(rv_list, layoutManager, weatherReportModels);
                     }
                 });
             }
         });
     }
+
+
 }

@@ -1,5 +1,7 @@
 package com.example.weatherapiapp;
 
+import java.util.HashMap;
+
 public class WeatherReportModel {
     private int id;
     private String weather_state_name;
@@ -17,32 +19,29 @@ public class WeatherReportModel {
     private float visibility;
     private int predictability;
 
-    public WeatherReportModel() {
+    private HashMap<String, String> weatherConditionPicturePicker = new HashMap<>();
 
+    public WeatherReportModel() {
+        weatherConditionPicturePicker.put("Snow", "https://www.metaweather.com//static/img/weather/ico/sn.ico");
+        weatherConditionPicturePicker.put("Sleet", "https://www.metaweather.com//static/img/weather/ico/sl.ico");
+        weatherConditionPicturePicker.put("Hail", "https://www.metaweather.com//static/img/weather/ico/h.ico");
+        weatherConditionPicturePicker.put("Thunderstorm", "https://www.metaweather.com//static/img/weather/ico/t.ico");
+        weatherConditionPicturePicker.put("Heavy Rain", "https://www.metaweather.com//static/img/weather/ico/hr.ico");
+        weatherConditionPicturePicker.put("Light Rain", "https://www.metaweather.com//static/img/weather/ico/lr.ico");
+        weatherConditionPicturePicker.put("Showers", "https://www.metaweather.com//static/img/weather/ico/s.ico");
+        weatherConditionPicturePicker.put("Heavy Cloud", "https://www.metaweather.com//static/img/weather/ico/hc.ico");
+        weatherConditionPicturePicker.put("Light Cloud", "https://www.metaweather.com//static/img/weather/ico/lc.ico");
+        weatherConditionPicturePicker.put("Clear", "https://www.metaweather.com//static/img/weather/ico/c.ico");
     }
 
-    public WeatherReportModel(int id, String weather_state_name, String weather_state_abbr, String wind_direction_compass, String created, String applicable_date, float min_temp, float max_temp, float the_temp, float wind_speed, float wind_direction, int air_pressure, int humidity, float visibility, int predictability) {
-        this.id = id;
-        this.weather_state_name = weather_state_name;
-        this.weather_state_abbr = weather_state_abbr;
-        this.wind_direction_compass = wind_direction_compass;
-        this.created = created;
-        this.applicable_date = applicable_date;
-        this.min_temp = min_temp;
-        this.max_temp = max_temp;
-        this.the_temp = the_temp;
-        this.wind_speed = wind_speed;
-        this.wind_direction = wind_direction;
-        this.air_pressure = air_pressure;
-        this.humidity = humidity;
-        this.visibility = visibility;
-        this.predictability = predictability;
+    public HashMap<String, String> getWeatherConditionPicturePicker() {
+        return weatherConditionPicturePicker;
     }
 
     @Override
     public String toString() {
-        return weather_state_name + " Date: " + applicable_date + '\'' +
-                "Lo: " + min_temp +
+        return weather_state_name + " Date: " + applicable_date +
+                "Lo: " + min_temp + "\n" +
                 "Hi: " + max_temp +
                 "Temp: " + the_temp;
     }
